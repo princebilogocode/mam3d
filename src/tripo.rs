@@ -40,8 +40,22 @@ pub fn api_key() -> Option<String> {
 
 pub fn save_key(k: &str) -> Result<(), String> {
     let p = key_file().ok_or("dossier de réglages introuvable")?;
-    std::fs::create_dir_all(p.parent().unwrap()).map_err(|e| e.to_string())?;
-    std::fs::write(&p, k.trim()).map_err(|e| e.to_string())
+    let dir = p.parent().ok_or("dossier de réglages introuvable")?;
+    // Windows : le dossier %APPDATA% n'est lisible que par l'utilisateur.
+    #[cfg(not(unix))]
+    {
+        std::fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+        std::fs::write(&p, k.trim()).map_err(|e| e.to_string())
+    }
+    // Unix : dossier et fichier réservés à l'utilisateur dès leur création.
+    #[cfg(unix)]
+    {
+        use std::io::Write;
+        use std::os::unix::fs::{DirBuilderExt, OpenOptionsExt};
+        std::fs::DirBuilder::new().recursive(true).mode(0o700).create(dir).map_err(|e| e.to_string())?;
+        let mut f = std::fs::OpenOptions::new().write(true).create(true).truncate(true).mode(0o600).open(&p).map_err(|e| e.to_string())?;
+        f.write_all(k.trim().as_bytes()).map_err(|e| e.to_string())
+    }
 }
 
 pub fn forget_key() {
