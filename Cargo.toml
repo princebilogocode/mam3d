@@ -1,0 +1,34 @@
+[package]
+name = "mam3d"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/princebilogocode/mam3d"
+description = "mam3d - transforme des images 2D en modèles 3D prêts pour Blender (GLB, OBJ, STL)"
+
+[dependencies]
+clap = { version = "4.6.10", features = ["derive"] }
+eframe = { version = "0.37.0", default-features = false, features = ["default_fonts", "glow", "wayland", "x11", "accesskit"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "bmp", "tga", "gif", "rayon"] }
+rayon = "1.12.0"
+rfd = "0.18.0"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+ureq = { version = "3.5.2", features = ["json"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 4
+strip = true
+
+# Les dépendances sont compilées optimisées même en mode debug : la conversion reste rapide.
+[profile.dev.package."*"]
+opt-level = 2
+
+[target.'cfg(target_os = "macos")'.dependencies]
+winit = { version = "0.30", default-features = false }
+
+[build-dependencies]
+winresource = "0.1.34"
+

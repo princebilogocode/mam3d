@@ -1,0 +1,11 @@
+# Compilation
+/target/
+/installer/target/
+# Installateurs construits (publiés dans les Releases GitHub)
+/dist/
+# Essais locaux (images de test, rendus)
+/shots/
+# Sorties de conversion
+mam3d_sortie/
+*.glb
+!docs/**/*.glb
